@@ -158,20 +158,19 @@ public:
 
     size_t divisor_start = 0;
 
-    for( ; divisor_start <= rhs.order(); ++divisor_start )
+    for( ; divisor_start < rhs.coefficients.size(); ++divisor_start )
       if( rhs.coefficients[divisor_start] != 0 )
         break;
 
-    for(size_t i=0; i <= remainder.order() - rhs.order(); ++i)
+    for(size_t i=0; i <= remainder.coefficients.size() - (rhs.coefficients.size() - divisor_start); ++i)
     {
-      base_field lead = remainder.coefficients.at(i) / rhs.coefficients.at(divisor_start);
+      base_field lead = remainder.coefficients[i] / rhs.coefficients[divisor_start];
       quotient.coefficients.push_back( lead );
 
-      for(size_t j=i,k=divisor_start; k <= rhs.order() + divisor_start; ++j, ++k)
+      for(size_t j=i,k=divisor_start; k < rhs.coefficients.size(); ++j, ++k)
       {
-        remainder.coefficients.at(j) -= lead * rhs.coefficients.at(k);
+        remainder.coefficients[j] -= lead * rhs.coefficients[k];
       }
-
     }
 
     quotient.remove_leading_zeros();
@@ -264,13 +263,10 @@ public:
 
   int is_zero(void) const
   {
-    auto copy = *this;
-    copy.remove_leading_zeros();
-
-    if( copy.coefficients.size() == 0 && copy.coefficients[0] == 0 )
-      return 1;
-    else
-      return 0;
+    for(auto & a : this->coefficients)
+      if(a != 0)
+        return 0;
+    return 1;
   }
 
 protected:

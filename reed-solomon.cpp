@@ -239,7 +239,6 @@ public:
     }
   }
 
-
   static void show_multiplication_table()
   {
     typedef GaloisField<n,generator> gf;
@@ -259,6 +258,20 @@ public:
     }
   }
 
+  static void show_exponentiation_table()
+  {
+    std::cout << "Exponential Lookup for GF(" << n+1 << "), primitive polynomial " << generator << ":\n";
+    for(size_t i=0; i < n; ++i)
+      std::cout << "a^" << i << " = " << GaloisField<n,generator>::exponential[i] << "\n";
+  }
+
+  static void show_logarithm_table()
+  {
+    std::cout << "Logarithm Lookup for GF(" << n+1 << "), primitive polynomial " << generator << ":\n";
+    for(size_t i=1; i < n+1; ++i)
+      std::cout << "log(" << i << ") = " << GaloisField<n,generator>::logarithm[i] << "\n";
+  }
+
   constexpr static std::array<int, n> exponential = gf_elements<n, generator>( gf_exponential<n, generator> );
   constexpr static std::array<int, n+1> logarithm = gf_elements<n+1, generator>( gf_logarithm<n+1, exponential, 0> );
 
@@ -276,245 +289,6 @@ std::ostream & operator<<(std::ostream & out, const GaloisField<n,generator> & c
      out << c.value;
      return out;
 }
-
-// template<typename T>
-// int gf_test_zero_vec( std::vector<T> & a )
-// {
-//   for(auto & b : a)
-//     if( b != T(-1) )
-//       return 0;
-//   return 1;
-// }
-//
-// template<typename T>
-// auto conv( std::vector<T> a, std::vector<T> b )
-// -> std::vector<T>
-// {
-//   std::vector<T> ret;
-//
-//   size_t len = a.size() + b.size() - 1;
-//
-//   a.resize(len, T(-1));
-//   b.resize(len, T(-1));
-//   ret.resize(len, T(-1));
-//
-//   for(size_t n=0; n < len; ++n)
-//   {
-//     for(size_t m=0; m < len; ++m)
-//     {
-//       ret[n] += a[m] * b[mod(n - m, len)];
-//     }
-//   }
-//
-//   return ret;
-// }
-//
-// template<typename T>
-// auto poly_div( std::vector<T> dividend, std::vector<T> divisor )
-// -> std::pair<std::vector<T>, std::vector<T>>
-// {
-//   size_t first_nonzero_coeff;
-//
-//   // Find the first non-zero coefficient, searching from left to right
-//   for(first_nonzero_coeff=0; first_nonzero_coeff < divisor.size(); ++first_nonzero_coeff)
-//   {
-//     if( divisor[first_nonzero_coeff] != T(-1) )
-//       break;
-//   }
-//
-//   // If the dividend is lower order than the divisor, return the zero polynomial
-//   // as quotient and dividend as remainder
-//   if( dividend.size() < divisor.size() - first_nonzero_coeff )
-//   {
-//     std::vector<T> zerovec = {T(-1)};
-//     return std::pair<std::vector<T>, std::vector<T>> ( zerovec, dividend );
-//   }
-//
-//   // Store the quotient here
-//   std::vector<T> quotient;
-//
-//
-//   for(size_t i=0; i < dividend.size() - divisor.size() + first_nonzero_coeff + 1; ++i)
-//   {
-//     // Find the leading coefficient for the next round of division, which is
-//     // the remaining term in the dividend and the first term in the divisor
-//     T lead = dividend[i] / divisor[first_nonzero_coeff];
-//
-//     quotient.push_back(lead);
-//
-//     // Find the next row in the division algorithm
-//     for(size_t j=first_nonzero_coeff, l=0; j < divisor.size(); ++j, ++l)
-//     {
-//       dividend[i+l] += lead * divisor[j];
-//     }
-//   }
-//
-//   size_t start;
-//
-//   for(start=0; start < dividend.size()-1; ++start)
-//   {
-//     if( dividend[start] != T(-1) )
-//       break;
-//   }
-//
-//   std::vector<T> remainder(dividend.begin() + start, dividend.end());
-//
-//   return std::pair<std::vector<T>, std::vector<T>>(quotient,remainder);
-// }
-//
-// template<typename T>
-// std::vector<T> gf_poly_sub(std::vector<T> & a, std::vector<T> & b)
-// {
-//   // In Galois Fields of characteristic 2, subtraction and addition
-//   // are equivalent
-//   std::vector<T> ret;
-//
-//   if( a.size() > b.size() )
-//   {
-//     for( ; a.size() != b.size(); )
-//       b.insert( b.begin() , T(-1) );
-//   }
-//   else if ( b.size() > a.size() )
-//   {
-//     for( ; b.size() != a.size(); )
-//       a.insert( a.begin() , T(-1) );
-//   }
-//
-//   ret.resize(a.size(), T(-1));
-//
-//   for(size_t i=0; i < a.size(); ++i)
-//   {
-//     ret[i] = a[i] - b[i];
-//   }
-//
-//   return ret;
-// }
-//
-// template<typename T>
-// constexpr auto gf_poly_add = gf_poly_sub<T>;
-//
-// template<typename T>
-// size_t gf_poly_order(std::vector<T> & a)
-// {
-//   size_t order = a.size()-1;
-//   for(size_t i=0; i < a.size(); ++i)
-//   {
-//     if(a[i] == T(-1))
-//       order--;
-//     else
-//       break;
-//   }
-//   return order;
-// }
-//
-// template<typename T>
-// auto gf_poly_gcd(std::vector<T> & a, std::vector<T> & b)
-// {
-//   std::vector<T> t0 = {T(-1)}, t1 = {T(0)};
-//   std::vector<T> r = b, newr = a;
-//   std::vector<T> temp;
-//   std::vector<T> quot;
-//   std::vector<T> rem;
-//   std::vector<T> cov;
-//   size_t terminate = gf_poly_order(a) - gf_poly_order(b) + 1;
-//
-//   do
-//   {
-//     auto tup = poly_div<T>(newr, r);
-//     quot = tup.first;
-//     rem  = tup.second;
-//
-//     cov = conv(t1, quot);
-//
-//     if( gf_poly_order( rem ) < terminate )
-//     {
-//       break;
-//     }
-//
-//     temp = t1;
-//     t1 = gf_poly_sub(t0, cov);
-//     t0 = temp;
-//
-//     newr = r; r = rem;
-//
-//   } while( 1 );
-//
-//   return std::pair<std::vector<T>,std::vector<T>>(gf_poly_sub(t0,cov), rem);
-// }
-//
-// template<typename T>
-// std::vector<T> gf_poly_diff( std::vector<T> & a )
-// {
-//   std::vector<T> ret;
-//
-//   int order = static_cast<int>(a.size() - 1);
-//
-//   for(size_t i=0; i < a.size(); ++i)
-//   {
-//     if( (order-i) % 2 == 0 )
-//       ret.push_back(T(-1));
-//     else
-//       ret.push_back(a[i]);
-//   }
-//   std::rotate(ret.begin(), ret.end()-1, ret.end());
-//
-//   return ret;
-// }
-//
-// template<typename T>
-// T gf_eval_poly( T input, std::vector<T> & poly )
-// {
-//   int order = static_cast<int>(poly.size() - 1);
-//   T val = T(-1);
-//   for(int i=0; i <= order; ++i)
-//   {
-//     val += poly[i] * T( input.log() * (order - i) );
-//   }
-//   return val;
-// }
-//
-// template<typename T, size_t n>
-// std::vector<T> error_locator( std::vector<T> & lambda,
-//   std::vector<T> & omega, std::vector<T> error_message )
-// {
-//   int message_order = static_cast<int>(error_message.size() - 1);
-//
-//   std::vector<T> error_location;
-//
-//   std::vector<T> error_polynomial;
-//
-//   std::vector<T> lambda_diff = gf_poly_diff( lambda );
-//
-//   printvec("lambda:", lambda);
-//   printvec("d(lamdba):", lambda_diff);
-//
-//   for(int i=message_order ; i >= 0 ; --i)
-//   {
-//     auto temp = gf_eval_poly( T( mod( -i, n ) ) , lambda );
-//     error_location.push_back( temp );
-//   }
-//
-//   printvec("error locator:", error_location);
-//
-//   for(int i=0; i <= message_order; ++i)
-//   {
-//     if( error_location[i] == T(-1) )
-//     {
-//       std::cout << message_order << "\n";
-//       std::cout << "error order: " << -message_order + i << "\n";
-//       T x = T( -message_order + i );
-//       T y = gf_eval_poly( x, omega );
-//       y /= gf_eval_poly( x, lambda_diff );
-//       y *= T( message_order - i );
-//       error_polynomial.push_back(y);
-//     }
-//     else
-//     {
-//       error_polynomial.push_back(T(-1));
-//     }
-//   }
-//   return error_polynomial;
-// }
 
 template<size_t N, size_t K, size_t generator>
 class ReedSolomonCodec
@@ -542,11 +316,12 @@ public:
   }
 
   static std::pair<Polynomial<base_field>,Polynomial<base_field>>
-  gcd( const Polynomial<base_field> & a, const Polynomial<base_field> & b )
+    gcd( const Polynomial<base_field> & a, const Polynomial<base_field> & b )
   {
     Polynomial<base_field> dividend = a;
     Polynomial<base_field> divisor = b;
     Polynomial<base_field> u0({0}), u1({0}), v0({1}), v1({0});
+
     while(1)
     {
       Polynomial<base_field> quotient;
@@ -600,11 +375,11 @@ public:
     Polynomial<base_field> & omega)
   {
     Polynomial<base_field> dlambda = diff(lambda);
-    Polynomial<base_field> errors({0});
+    Polynomial<base_field> errors;
     base_field primitive = 2;
     int order = N-1;
 
-    std::cout << "\nd(lambda):\n" << dlambda << "\n";
+    std::cout << "\nd(lambda):\n" << dlambda << "[" << dlambda.coefficients.size() << "]" << "\n";
 
     for(int i=0; i < static_cast<int>(error_locations.order()+1); ++i)
     {
@@ -625,26 +400,30 @@ public:
 };
 
 
-// constexpr int n = 255;
-// constexpr int k = 223;
-// constexpr int generator = 285;
+// constexpr int n = 15;
+// constexpr int k = 11;
+// constexpr int generator = 19;
 
 constexpr int n = 255;
 constexpr int k = 223;
 constexpr int generator = 285;
-
 constexpr int two_t = n-k;
 
 typedef GaloisField<n,generator> gf;
 
 int main(int argc, char ** argv)
 {
-  // gf::show_addition_table();
-  // gf::show_multiplication_table();
+  gf::show_addition_table();
+  gf::show_multiplication_table();
+  gf::show_exponentiation_table();
+  gf::show_logarithm_table();
+
+  std::cout << "\n";
 
   std::default_random_engine rng;
   std::uniform_int_distribution<int> distribution(0,n);
   auto seedval = std::chrono::system_clock::now().time_since_epoch().count();
+
   rng.seed( seedval );
 
   std::cout << "Seed value: " << seedval << "\n";
@@ -652,34 +431,44 @@ int main(int argc, char ** argv)
   Polynomial<gf> message;
   Polynomial<gf> original;
   Polynomial<gf> encoder({1});
+  Polynomial<gf> f, e, lambda, omega, dividend;
 
   gf primitive = 2;
 
   for(int i=0; i < k; ++i)
+  {
+    #ifdef BBC
+    message.push_back( i+1 );
+    #else
     message.push_back( distribution(rng) );
+    #endif
+  }
   for(int i=0; i < n-k; ++i)
     message.push_back(0);
 
-
-  std::cout << "\nOriginal Message:\n" << message << "\n";
+  std::cout << "\nOriginal Message:\n" << message << "[" << message.coefficients.size() << "]" << "\n";
 
   for(int i=0; i < two_t; ++i)
   {
     encoder *= Polynomial<gf>({1, primitive.pow(i)});
   }
 
-  std::cout << "\nEncoder Polynomial:\n" << encoder << "\n";
+  std::cout << "\nEncoder Polynomial:\n" << encoder << "[" << encoder.coefficients.size() << "]" << "\n";
 
   auto val = message / encoder;
 
-  std::cout << "\nError Correction:\n" << val.second << "\n";
+  std::cout << "\nError Correction:\n" << val.second << "[" << val.second.coefficients.size() << "]" << "\n";
 
   message += val.second;
 
-  std::cout << "\nEncoded Message:\n" << message << "\n";
+  std::cout << "\nEncoded Message:\n" << message << "[" << message.coefficients.size() << "]" << "\n";
 
   original = message;
 
+#ifdef BBC
+  message[5] = 11;
+  message[12] = 1;
+#else
   for(int i=0; i < (n-k)/2; ++i)
   {
     int j = distribution(rng);
@@ -688,8 +477,9 @@ int main(int argc, char ** argv)
     else
       continue;
   }
+#endif
 
-  std::cout << "\nCorrupted Message:" << message << "\n";
+  std::cout << "\nCorrupted Message:\n" << message << "[" << message.coefficients.size() << "]" << "\n";
 
   Polynomial<gf> syndrome;
 
@@ -700,40 +490,45 @@ int main(int argc, char ** argv)
     syndrome.push_back( res.second );
   }
 
-  std::cout << "\nSyndromes:\n" << syndrome << "\n";
+  std::cout << "\nSyndromes:\n" << syndrome << "[" << syndrome.coefficients.size() << "]" << "\n";
 
-  Polynomial<gf> dividend({1});
+  if( syndrome.is_zero() )
+  {
+    f.push_back(0);
+    goto end;
+  }
+
+  dividend.push_back(1);
 
   for(int i=0; i < two_t; ++i)
   {
     dividend.push_back(0);
   }
 
-  // std::cout << dividend << "\n";
-
-  Polynomial<gf> lambda, omega;
-
   std::tie(lambda, omega) = ReedSolomonCodec<n,k,generator>::gcd(dividend, syndrome);
 
-  std::cout << "\nLambda:\n" << lambda << "\n";
-  std::cout << "\nOmega:\n" << omega << "\n";
+  std::cout << "\nLambda:\n" << lambda << "[" << lambda.coefficients.size() << "]" << "\n";
+  std::cout << "\nOmega:\n" << omega << "[" << omega.coefficients.size() << "]" << "\n";
 
-  auto e = ReedSolomonCodec<n,k,generator>::get_error_locator(lambda);
+  e = ReedSolomonCodec<n,k,generator>::get_error_locator(lambda);
 
-  std::cout << "\nError Locator:\n" << e << "\n";
+  std::cout << "\nError Locator:\n" << e << "[" << e.coefficients.size() << "]" << "\n";
 
-  auto f = ReedSolomonCodec<n,k,generator>::get_error_polynomial(e, lambda, omega);
+  f = ReedSolomonCodec<n,k,generator>::get_error_polynomial(e, lambda, omega);
 
-  std::cout << "\nError Magnitude:\n" << f << "\n";
+  std::cout << "\nError Magnitude:\n" << f << "[" << f.coefficients.size() << "]" << "\n";
 
-  // std::cout << f + message << "\n";
-  //
-  // std::cout << original << "\n";
+  std::cout << f + message << "\n";
+
+  std::cout << original << "\n";
+
+end:
 
   auto g = f + message - original;
 
   std::cout << "\nTotal Error:\n";
+
   std::cout << g.remove_leading_zeros() << "\n";
 
-  return g.is_zero();
+  return !g.is_zero();
 }
