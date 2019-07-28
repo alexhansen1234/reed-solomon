@@ -1,3 +1,5 @@
 reed-solomon.c
 **/build/*
 !**/build/.gitkeep
+**/CMakeFiles/**
+**/CMakeCache.txt
