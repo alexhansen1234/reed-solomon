@@ -23,15 +23,15 @@
 //   return value == 0 ? 0 : 1 << (nbits(value) - 1);
 // }
 
-#define BBC
+//#define BBC
 
-constexpr int n = 15;
-constexpr int k = 11;
-constexpr int generator = 19;
+// constexpr int n = 15;
+// constexpr int k = 11;
+// constexpr int generator = 19;
 
-// constexpr int n = 255;
-// constexpr int k = 223;
-// constexpr int generator = 285;
+constexpr int n = 255;
+constexpr int k = 223;
+constexpr int generator = 285;
 
 constexpr int two_t = n-k;
 
@@ -39,13 +39,13 @@ typedef GaloisField<n,generator> gf;
 
 int main(int argc, char ** argv)
 {
-  gf::show_addition_table();
-  gf::show_multiplication_table();
-  gf::show_division_table();
+  // gf::show_addition_table();
+  // gf::show_multiplication_table();
+  // gf::show_division_table();
   gf::show_exponentiation_table();
   gf::show_logarithm_table();
 
-  std::cout << "\n";
+  // std::cout << "\n";
 
   std::default_random_engine rng;
   std::uniform_int_distribution<int> distribution(0,n);
